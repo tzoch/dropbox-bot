@@ -1,0 +1,8 @@
+{
+	"username": "USERNAME",
+	"password": "PASSWORD",
+	"user-agent": "Dropbox Mirror by /u/OnceAndForever operated by YOU",
+	"test-mode": true,
+	"database": "processed.db",
+        "blacklist": ["badSubreddit", "worseSubreddit", "horribleSubreddit"]
+}
