@@ -12,11 +12,6 @@ import pyimgur
 
 from database import Database
 
-blacklist = ['spacedicks',
-             'clopclop',
-             'spaceclop'
-            ]
-
 supported_extensions = ['jpg', 'jpeg', 'png', 'gif', 'bmp']
 
 def get_direct_dl_link(url):
