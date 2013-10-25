@@ -7,3 +7,9 @@
 
 # Config File
 config.json
+
+# Temporary Files
+*.log
+*.tmp
+tmp/*
+*.swp
