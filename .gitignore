@@ -1,0 +1,9 @@
+# Database Files
+*.db
+*.sqlite3
+
+# Compiled Files
+*.pyc
+
+# Config File
+config.json
