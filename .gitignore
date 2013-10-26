@@ -13,3 +13,9 @@ config.json
 *.tmp
 tmp/*
 *.swp
+
+# Image Files
+*.jpg
+*.gif
+*.png
+*.jpeg
