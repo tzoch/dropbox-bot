@@ -51,6 +51,7 @@ class Database(object):
         self.conn.commit()
 
 if __name__ == '__main__':
+    pass
 # Add some random thing_ids for testing 
 #
 #    db = Database('processed.db')
