@@ -1,4 +1,4 @@
-Dropbox Mirror Bot for Reddit
+# Dropbox Mirror Bot for Reddit
 
 Dropbox files become unavaiable if they recieve too much traffic. This is
 problematic for files that are posted to reddit where they may be accessed
@@ -9,7 +9,8 @@ reuploading them to imgur. However, other versions could mirror other
 filetypes such as videos (via youtube or vimeo), audio (via soundcloud), pdf,
 txt or any other filetype that is posted frequently.
 
-Basic Bot Functionality Outline:
+#### Basic Bot Functionality Outline:
+
 1. Scrape both 
 	 reddit.com/domain/dropbox.com
 	 reddit.com/domain/dl.dropboxusercontent.com
@@ -21,6 +22,6 @@ Basic Bot Functionality Outline:
 6. Delete the temporary files.
 5. Continue searching for supported filetypes.   
 
-USAGE
+#### USAGE
 First, you must rename the sample_config.json file to config.json
 Then, update the config.json to include your credentials.
