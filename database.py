@@ -6,7 +6,7 @@ Dropbox Mirror Bot
 
 import sqlite3
 
-from debug import generate_thing_ids
+from utils import generate_thing_ids
 
 class Database(object):
 
