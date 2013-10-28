@@ -12,7 +12,7 @@ import praw
 import pyimgur
 
 from database import Database
-from debug import delete_tmp_files
+from utils import delete_tmp_files
 from dropbox import DropBox
 
 def main():
@@ -22,12 +22,13 @@ def main():
     r.login(config['username'], config['password'])
     submissions = r.get_domain_listing('dropbox.com', sort='new', limit=2)
 
-    #for submission in submissions:
-    url = 'https://www.dropbox.com/TESTURL.jpg'
+    for submission in submissions:
+        print submission.name
  
 if __name__ == '__main__':
     logging.basicConfig(filename='dropbox-bot.log', level=logging.DEBUG)
 
     print 'Started Main'
+    main()
     print 'Finished Main'
 
