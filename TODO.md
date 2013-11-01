@@ -1,4 +1,4 @@
 ### TODO
 
-1. Implement blacklist
-2. Add support for more filetypes
+1. Add support for more filetypes
+2. Automate adding user to blacklist
