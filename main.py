@@ -39,7 +39,7 @@ def scrape_submissions():
     r.login(config['username'], config['password'])
     #submissions = r.get_domain_listing('dropbox.com', sort='new', limit=2)
     # switch the comment out when the bot goes live
-    submissions = r.get_subreddit('DropBox_Bot').get_new(limit=10101010101010101010)
+    submissions = r.get_subreddit('DropBox_Bot').get_new(limit=10)
 
     for submission in submissions:
         name = submission.name # makes it easier 
