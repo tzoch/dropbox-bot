@@ -16,7 +16,7 @@ def delete_tmp_files(directory='tmp'):
             os.remove(directory + '/' + tmp_file)
             i += 1
 
-        logging.info('Temporary files cleared! [%s] deletd', i)
+        logging.info('Temporary files cleared! [%s] deleted', i)
         return
     else:
         logging.info('Temporary files cleared! No files to delete') 
