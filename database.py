@@ -47,11 +47,3 @@ class Database(object):
                    VALUES (?)'''
         c.execute(query , (submission_id,))
         self.conn.commit()
-
-if __name__ == '__main__':
-    pass
-# Add some random thing_ids for testing 
-#
-#    db = Database('processed.db')
-#    for thing_id in generate_thing_ids(10):
-#        db.mark_as_processed(thing_id)
