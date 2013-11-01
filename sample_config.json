@@ -1,8 +1,13 @@
 {
 	"username": "USERNAME",
 	"password": "PASSWORD",
-	"user-agent": "Dropbox Mirror by /u/OnceAndForever operated by YOU",
+	"user-agent": "Dropbox Mirror operated by YOU",
 	"test-mode": true,
 	"database": "processed.db",
-        "blacklist": ["badSubreddit", "worseSubreddit", "horribleSubreddit"]
+        "blacklist": ["DropBox_Bot", "badSubreddit", "worseSubreddit", "horribleSubreddit"]
+        "imgur_api": {
+                   "client_id" : "SECRET",
+                   "client_secret": "SUPER SECRET"
+                 }
+
 }
