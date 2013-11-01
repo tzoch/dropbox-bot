@@ -85,14 +85,3 @@ class DropBox(object):
         path = 'tmp/' + self.tmp_filename
         uploaded_image = im.upload_image(path, self.title) 
         return uploaded_image.link
-
-if __name__ == '__main__':
-    logging.basicConfig(filename='dropbox-bot.log', level=logging.DEBUG)
-
-    print 'Started Main'
-    url = 'http://www.dropbox.com/s/5jho6679mk2xgg6/Frostbite.jpg'
-    dp = DropBox(url)
-    dp.download_file()
-    print dp.rehost_image()
-    print 'Finished Main'
-
