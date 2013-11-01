@@ -23,30 +23,41 @@ def build_comment(imgur_url):
     tail = '''This action was performed by a bot. If there is an issue or
             problem, please report it below.\n\n'''
 
-    foot = '''[^[DropBox_Bot&nbsp;FAQ]](http://www.reddit.com/r/DropBox_Bot/wiki/faq) 
+    foot = '''[^[Bot&nbsp;FAQ]](http://www.reddit.com/r/DropBox_Bot/wiki/index)
+        [^[Report&nbsp;Problem]](http://www.reddit.com/message/compose/?to=DropBox_Bot&subject=Problem%20to%20Report)
         [^[Feedback]](http://www.reddit.com/r/DropBox_Bot/submit) 
         [^[Source]](https://github.com/tzoch/dropbox-bot)''' 
 
     return head + body + tail + foot
 
-def scrape_submissions():
-    config = json.load(open('config.json'))
-    db = Database(config['database'])
+def scrape_submissions(domain, db, r):
+    '''
+    This is the main work horse function of the dropbox bot. The bot gets the
+    latest submissions to the dropbox.com domain and checks for two conditions.
+        1. If it has already processed the submission, the bot skips it
+        2. If it is able to be rehosted, we processes it
+            - currently, the bot only supports the rehosting of images, but
+              if there is a demand for other formats, and if there are 
+              convinient hosts to use, they will be implemented
 
-    r = praw.Reddit(config['user-agent'])
-    r.login(config['username'], config['password'])
+    Currently, there is some basic logging to report the status of the bot.
+    However, proper error handling should be added to make sure bad requests
+    or 404'd dropbox pages are skipped and do not crash the bot.
+    '''
+
     #submissions = r.get_domain_listing('dropbox.com', sort='new', limit=2)
     # switch the comment out when the bot goes live
     submissions = r.get_subreddit('DropBox_Bot').get_new(limit=10)
 
     for submission in submissions:
-        name = submission.name # makes it easier 
+        name = submission.name # makes it easier to reassign this 
         drop = DropBox(submission.url) 
 
-        # need to separate these conditions so I can tell the difference
-        # between a submission that I CANT processes and a submissions I've
-        # ALREADY processed
-        if not db.is_processed(submission.name) and drop.is_rehostable:
+        if db.is_processed(name):
+            logging.info('Skipped! [' + name + '] has already been processed')
+            continue
+
+        if drop.is_rehostable:
             drop.download_file()
             imgur_url = drop.rehost_image()
 
@@ -62,15 +73,38 @@ def scrape_submissions():
             logging.info('Skipped! [' + name + '] is not rehostable')
 
 def main():
-    pass
-
-if __name__ == '__main__':
     fmt = '[%(asctime)-15s] (%(module)-15s) %(levelname)-8s : %(message)s'
     logging.basicConfig(filename='dropbox-bot.log', 
                         format=fmt,
                         datefmt='%d-%b %H:%M:%S',
                         level=logging.INFO)
 
-    print 'Started Main'
-    scrape_submissions()
-    print 'Finished Main'
+    logging.info('Bot Started')
+
+    print '''DropBox Bot started...\n\tTo monitor the bots status check the log
+             "dropbox-bot.log"\n\tTo stop the bot, use KeyboardInterrupt'''
+
+    config = json.load(open('config.json'))
+    db = Database(config['database'])
+
+    r = praw.Reddit(config['user-agent'])
+    r.login(config['username'], config['password'])
+
+    while True:
+        print 'Top of loop'
+        try:
+            print 'Scraping submissions'
+            scrape_submissions('dropbox.com', db, r)
+            scrape_submissions('dl.dropboxusercontent.com', db, r)
+        except KeyboardInterrupt:
+            import sys
+            sys.exit(0)
+        finally:
+            delete_tmp_files()
+            print 'Bot done scraping...sleeping for 5 minutes'
+            logging.info('Sleeping! No new submissions to process')
+            time.sleep(300)
+
+if __name__ == '__main__':
+    print '[INITIALIZED]'
+    main()
