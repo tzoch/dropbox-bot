@@ -78,6 +78,9 @@ class DropBox(object):
 
                 
         '''
+        if not self.is_rehostable:
+            return False
+
         im = pyimgur.Imgur(self.config['imgur_api']['client_id'])
         path = 'tmp/' + self.tmp_filename
         uploaded_image = im.upload_image(path, self.title) 
@@ -87,7 +90,7 @@ if __name__ == '__main__':
     logging.basicConfig(filename='dropbox-bot.log', level=logging.DEBUG)
 
     print 'Started Main'
-    url = 'https://www.dropbox.com/s/i7st517rya0isv6/roadside%20sign.jpg'
+    url = 'http://www.dropbox.com/s/5jho6679mk2xgg6/Frostbite.jpg'
     dp = DropBox(url)
     dp.download_file()
     print dp.rehost_image()
