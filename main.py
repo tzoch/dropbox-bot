@@ -30,7 +30,7 @@ def build_comment(imgur_url):
 
     return head + body + tail + foot
 
-def scrape_submissions(domain, db, r):
+def scrape_submissions(domain, blacklist, db, r):
     '''
     This is the main work horse function of the dropbox bot. The bot gets the
     latest submissions to the dropbox.com domain and checks for two conditions.
@@ -51,7 +51,16 @@ def scrape_submissions(domain, db, r):
 
     for submission in submissions:
         name = submission.name # makes it easier to reassign this 
-        drop = DropBox(submission.url) 
+        drop = DropBox(submission.url)
+
+        # ignore deleted comments
+        if not submission.author:
+            logging.info('Skipped! [' + name '] Submission has been deleted')
+            continue
+
+        if submission.subreddit.display_name in blacklist:
+            logging.info('Skipped! [' + name + '] in a blacklisted subreddit')
+            continue
 
         if db.is_processed(name):
             logging.info('Skipped! [' + name + '] has already been processed')
@@ -85,6 +94,8 @@ def main():
              "dropbox-bot.log"\n\tTo stop the bot, use KeyboardInterrupt'''
 
     config = json.load(open('config.json'))
+    blacklist = config['blacklist']
+
     db = Database(config['database'])
 
     r = praw.Reddit(config['user-agent'])
@@ -94,8 +105,8 @@ def main():
         print 'Top of loop'
         try:
             print 'Scraping submissions'
-            scrape_submissions('dropbox.com', db, r)
-            scrape_submissions('dl.dropboxusercontent.com', db, r)
+            scrape_submissions('dropbox.com', blacklist, db, r)
+            scrape_submissions('dl.dropboxusercontent.com', blacklist, db, r)
         except KeyboardInterrupt:
             import sys
             sys.exit(0)
