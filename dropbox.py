@@ -7,11 +7,9 @@ import os
 import urlparse as up
 
 import requests
-import praw
 import pyimgur
 
 from database import Database
-from utils import delete_tmp_files
 
 class DropBox(object):
 
