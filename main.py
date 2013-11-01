@@ -31,7 +31,7 @@ def build_comment(imgur_url):
 
     return head + body + tail + foot
 
-def main():
+def scrape_submissions():
     config = json.load(open('config.json'))
     db = Database(config['database'])
 
@@ -39,24 +39,37 @@ def main():
     r.login(config['username'], config['password'])
     #submissions = r.get_domain_listing('dropbox.com', sort='new', limit=2)
     # switch the comment out when the bot goes live
-    submissions = r.get_subreddit('DropBox_Bot').get_new(limit=2)
+    submissions = r.get_subreddit('DropBox_Bot').get_new(limit=10101010101010101010)
 
     for submission in submissions:
-        if not db.is_processed(submission.name):
-            drop = DropBox(submission.url) 
+        name = submission.name # makes it easier 
+        drop = DropBox(submission.url) 
+
+        if not db.is_processed(submission.name) and drop.is_rehostable:
             drop.download_file()
             imgur_url = drop.rehost_image()
 
             if imgur_url:
                 comment = build_comment(imgur_url)
                 submission.add_comment(comment)
+                db.mark_as_processed(name)
+                logging.info('Success! [' + name + '] rehosted')
+            else:
+                logging.error('Failure! [' + name + '] error while uploading')
+        else:
+            db.mark_as_processed(name)
+            logging.info('Skipped! [' + name + '] is not rehostable')
 
+def main():
+    pass
 
 if __name__ == '__main__':
+    fmt = '[%(asctime)-15s] (%(module)-15s) %(levelname)-8s : %(message)s'
     logging.basicConfig(filename='dropbox-bot.log', 
-                       # format='[%(asctime)-15s] %(levelname)-8s : %(message)',
-                        level=logging.DEBUG)
+                        format=fmt,
+                        datefmt='%d-%b %H:%M:%S',
+                        level=logging.INFO)
 
     print 'Started Main'
-    main()
+    scrape_submissions()
     print 'Finished Main'
