@@ -7,9 +7,7 @@ import time
 
 import urlparse as up
 
-import requests
 import praw
-import pyimgur
 
 from database import Database
 from utils import delete_tmp_files
@@ -45,6 +43,9 @@ def scrape_submissions():
         name = submission.name # makes it easier 
         drop = DropBox(submission.url) 
 
+        # need to separate these conditions so I can tell the difference
+        # between a submission that I CANT processes and a submissions I've
+        # ALREADY processed
         if not db.is_processed(submission.name) and drop.is_rehostable:
             drop.download_file()
             imgur_url = drop.rehost_image()
