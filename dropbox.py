@@ -13,10 +13,11 @@ from database import Database
 
 class DropBox(object):
 
-    def __init__(self, url, title=None):
+    def __init__(self, url, thing_id, title=None):
 
         self.working_url = self.get_direct_link(url)
         self.title = title
+        self.thing_id = thing_id 
         self.config = json.load(open('config.json'))
 
         self.accepted_content_types = ['image/jpeg',
@@ -84,7 +85,9 @@ class DropBox(object):
         try:
             uploaded_image = im.upload_image(path, self.title) 
         except requests.exceptions.HTTPError:
-            logging.error('Skipped! Bad Request to imgur API')
+            # The is_rehostable() method may have made an error and
+            # misidentified an unacceptable filesize or filetype
+            logging.error('Failure! [' + self.thing_id + '] Bad Imgur Request')
             return False
 
         return uploaded_image.link
