@@ -1,4 +1,4 @@
-#! usr/bin/python
+#! /usr/bin/python
 '''
 Class to handle database connections and queries for 
 Dropbox Mirror Bot
