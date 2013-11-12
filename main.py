@@ -30,7 +30,7 @@ def build_comment(imgur_url):
 
     return head + body + tail + foot
 
-def scrape_domain_submissions(domain, blacklist, db, r):
+def scrape_domain_submissions(domain, config, r):
     '''
     This is the main work horse function of the dropbox bot. The bot gets the
     latest submissions to the dropbox.com domain and checks for two conditions.
@@ -45,20 +45,24 @@ def scrape_domain_submissions(domain, blacklist, db, r):
     or 404'd dropbox pages are skipped and do not crash the bot.
     '''
 
-    submissions = r.get_domain_listing(domain, sort='new', limit=100)
-    # switch the comment out when the bot goes live
-    #submissions = r.get_subreddit('DropBox_Bot').get_new(limit=10)
+    db = Database(config['database'])
+
+    if config['test-mode']:
+        submissions = r.get_subreddit('DropBox_Bot').get_new(limit=10)
+    else:
+        submissions = r.get_domain_listing(domain, sort='new', limit=100)
 
     for submission in submissions:
         name = submission.name # makes it easier to reassign this 
         drop = DropBox(submission.url)
 
-        # ignore deleted comments
+        # skip deleted comments
         if not submission.author:
             logging.info('Skipped! [' + name + '] Submission has been deleted')
             continue
 
-        if submission.subreddit.display_name in blacklist:
+        # skip blacklisted subreddits
+        if submission.subreddit.display_name in config['blacklist']:
             logging.info('Skipped! [' + name + '] in a blacklisted subreddit')
             continue
 
@@ -80,7 +84,7 @@ def scrape_domain_submissions(domain, blacklist, db, r):
                     submission.add_comment(comment)
                     db.mark_as_processed(name)
                 except praw.errors.RateLimitExceeded:
-                    logging.warning('Warning! [' + name + '] RateLimtitExceeded')
+                    logging.('ERROR! [' + name + '] RateLimtitExceeded')
                     logging.info('Trying to sleep off the RateLimit')
                     time.sleep(1200)
                     logging.info('AWAKE! Trying to comment again...')
@@ -114,9 +118,6 @@ def main():
              "dropbox-bot.log"\n\tTo stop the bot, use KeyboardInterrupt'''
 
     config = json.load(open('config.json'))
-    blacklist = config['blacklist']
-
-    db = Database(config['database'])
 
     r = praw.Reddit(config['user-agent'])
     r.login(config['username'], config['password'])
@@ -126,9 +127,9 @@ def main():
         try:
             print 'Scraping submissions'
             scrape_domain_submissions('dropbox.com',
-                                      blacklist, db, r)
+                                      config, r)
             scrape_domain_submissions('dl.dropboxusercontent.com', 
-                                      blacklist, db, r)
+                                      config, r)
         except KeyboardInterrupt:
             import sys
             sys.exit(0)
