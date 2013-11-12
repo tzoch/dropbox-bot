@@ -30,7 +30,7 @@ def build_comment(imgur_url):
 
     return head + body + tail + foot
 
-def scrape_submissions(domain, blacklist, db, r):
+def scrape_domain_submissions(domain, blacklist, db, r):
     '''
     This is the main work horse function of the dropbox bot. The bot gets the
     latest submissions to the dropbox.com domain and checks for two conditions.
@@ -125,8 +125,10 @@ def main():
         print 'Top of loop'
         try:
             print 'Scraping submissions'
-            scrape_submissions('dropbox.com', blacklist, db, r)
-            scrape_submissions('dl.dropboxusercontent.com', blacklist, db, r)
+            scrape_domain_submissions('dropbox.com',
+                                      blacklist, db, r)
+            scrape_domain_submissions('dl.dropboxusercontent.com', 
+                                      blacklist, db, r)
         except KeyboardInterrupt:
             import sys
             sys.exit(0)
