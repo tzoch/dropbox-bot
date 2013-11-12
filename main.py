@@ -53,8 +53,8 @@ def scrape_domain_submissions(domain, config, r):
         submissions = r.get_domain_listing(domain, sort='new', limit=100)
 
     for submission in submissions:
-        name = submission.name # makes it easier to reassign this 
-        drop = DropBox(submission.url)
+        name = submission.name # the thing_id - easier to reassign here 
+        drop = DropBox(submission.url, name)
 
         # skip deleted comments
         if not submission.author:
