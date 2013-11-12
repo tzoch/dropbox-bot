@@ -84,7 +84,7 @@ def scrape_domain_submissions(domain, config, r):
                     submission.add_comment(comment)
                     db.mark_as_processed(name)
                 except praw.errors.RateLimitExceeded:
-                    logging.('ERROR! [' + name + '] RateLimtitExceeded')
+                    logging.error('ERROR! [' + name + '] RateLimtitExceeded')
                     logging.info('Trying to sleep off the RateLimit')
                     time.sleep(1200)
                     logging.info('AWAKE! Trying to comment again...')
