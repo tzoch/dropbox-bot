@@ -81,5 +81,10 @@ class DropBox(object):
 
         im = pyimgur.Imgur(self.config['imgur_api']['client_id'])
         path = 'tmp/' + self.tmp_filename
-        uploaded_image = im.upload_image(path, self.title) 
+        try:
+            uploaded_image = im.upload_image(path, self.title) 
+        except requests.exceptions.HTTPError:
+            logging.error('Skipped! Bad Request to imgur API')
+            return False
+
         return uploaded_image.link
