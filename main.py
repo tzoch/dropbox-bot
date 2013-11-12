@@ -45,9 +45,9 @@ def scrape_submissions(domain, blacklist, db, r):
     or 404'd dropbox pages are skipped and do not crash the bot.
     '''
 
-    #submissions = r.get_domain_listing('dropbox.com', sort='new', limit=2)
+    submissions = r.get_domain_listing(domain, sort='new', limit=100)
     # switch the comment out when the bot goes live
-    submissions = r.get_subreddit('DropBox_Bot').get_new(limit=10)
+    #submissions = r.get_subreddit('DropBox_Bot').get_new(limit=10)
 
     for submission in submissions:
         name = submission.name # makes it easier to reassign this 
@@ -55,7 +55,7 @@ def scrape_submissions(domain, blacklist, db, r):
 
         # ignore deleted comments
         if not submission.author:
-            logging.info('Skipped! [' + name '] Submission has been deleted')
+            logging.info('Skipped! [' + name + '] Submission has been deleted')
             continue
 
         if submission.subreddit.display_name in blacklist:
@@ -70,13 +70,33 @@ def scrape_submissions(domain, blacklist, db, r):
             drop.download_file()
             imgur_url = drop.rehost_image()
 
+            # This will return false from the dropbox.py file
+            # if there is an HTTP Exception uploading the file
             if imgur_url:
                 comment = build_comment(imgur_url)
-                submission.add_comment(comment)
-                db.mark_as_processed(name)
+                # These try/excepts are to help get around the
+                # commenting limit reddit has for new accounts
+                try:
+                    submission.add_comment(comment)
+                    db.mark_as_processed(name)
+                except praw.errors.RateLimitExceeded:
+                    logging.warning('Warning! [' + name + '] RateLimtitExceeded')
+                    logging.info('Trying to sleep off the RateLimit')
+                    time.sleep(1200)
+                    logging.info('AWAKE! Trying to comment again...')
+                    try:
+                        submission.add_coment(comment)
+                        db.mark_as_processed(name)
+                    except praw.errors.RateLimitExceeded:
+                        logging.error('Skipped! [' + name + '] Rate Limited')
+                        continue
                 logging.info('Success! [' + name + '] rehosted')
+            # This probably hapens due to an imgur API error
+            # ex. the file is too large to be uploaded, so we
+            # should skip and mark as processed
             else:
                 logging.error('Failure! [' + name + '] error while uploading')
+                db.mark_as_processed(name)
         else:
             db.mark_as_processed(name)
             logging.info('Skipped! [' + name + '] is not rehostable')
@@ -110,11 +130,11 @@ def main():
         except KeyboardInterrupt:
             import sys
             sys.exit(0)
-        finally:
-            delete_tmp_files()
-            print 'Bot done scraping...sleeping for 5 minutes'
-            logging.info('Sleeping! No new submissions to process')
-            time.sleep(300)
+
+        delete_tmp_files()
+        print 'Bot done scraping...sleeping for 20 minutes'
+        logging.info('Sleeping! No new submissions to process')
+        time.sleep(1200)
 
 if __name__ == '__main__':
     print '[INITIALIZED]'
