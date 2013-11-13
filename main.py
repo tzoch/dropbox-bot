@@ -56,18 +56,21 @@ def scrape_domain_submissions(domain, config, r):
         name = submission.name # the thing_id - easier to reassign here 
         drop = DropBox(submission.url, name)
 
+        # first, make sure the submission hasn't been processed already
+        if db.is_processed(name):
+            logging.info('Skipped! [' + name + '] has already been processed')
+            continue
+
         # skip deleted comments
         if not submission.author:
             logging.info('Skipped! [' + name + '] Submission has been deleted')
+            db.mark_as_processed(name)
             continue
 
         # skip blacklisted subreddits
         if submission.subreddit.display_name in config['blacklist']:
             logging.info('Skipped! [' + name + '] in a blacklisted subreddit')
-            continue
-
-        if db.is_processed(name):
-            logging.info('Skipped! [' + name + '] has already been processed')
+            db.mark_as_processed(name)
             continue
 
         if drop.is_rehostable:
