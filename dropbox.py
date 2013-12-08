@@ -49,13 +49,15 @@ class DropBox(object):
         '''
 
         r = requests.head(self.working_url)
-        
-        if r.headers['content-type'] in self.accepted_content_types:
-            # Type cast content-length for accurate comparison
-            if int(r.headers['content-length']) < self.max_file_size:
-                return True
-
-        return False
+  
+        try:      
+            if r.headers['content-type'] in self.accepted_content_types:
+                # Type cast content-length for accurate comparison
+                if int(r.headers['content-length']) < self.max_file_size:
+                    return True
+            return False
+        except KeyError:
+            return False
 
     def download_file(self):
 
