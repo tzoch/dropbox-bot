@@ -120,25 +120,27 @@ def main():
     print '''DropBox Bot started...\n\tTo monitor the bots status check the log
              "dropbox-bot.log"\n\tTo stop the bot, use KeyboardInterrupt'''
 
-    config = json.load(open('config.json'))
-
-    r = praw.Reddit(config['user-agent'])
-    r.login(config['username'], config['password'])
-
     while True:
-        print 'Top of loop'
+        print 'Loading Config'
+        config = json.load(open('config.json'))
+
+        print 'Logging In'
+        r = praw.Reddit(config['user-agent'])
+        r.login(config['username'], config['password'])
+
         try:
-            print 'Scraping submissions'
+            print 'Scraping Submissions'
             scrape_domain_submissions('dropbox.com',
                                       config, r)
             scrape_domain_submissions('dl.dropboxusercontent.com', 
                                       config, r)
+            print 'Finished Scraping'
         except KeyboardInterrupt:
             import sys
             sys.exit(0)
 
         delete_tmp_files()
-        print 'Bot done scraping...sleeping for 20 minutes'
+        print 'Finished Processing\nSleeping for 20 minutes'
         logging.info('Sleeping! No new submissions to process')
         time.sleep(1200)
 
