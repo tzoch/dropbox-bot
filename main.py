@@ -68,7 +68,7 @@ def scrape_domain_submissions(domain, config, r):
             continue
 
         # skip blacklisted subreddits
-        if submission.subreddit.display_name in config['blacklist']:
+        if submission.subreddit.display_name.lower() in config['blacklist']:
             logging.info('Skipped! [' + name + '] in a blacklisted subreddit')
             db.mark_as_processed(name)
             continue
