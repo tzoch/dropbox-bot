@@ -82,7 +82,8 @@ class DropBox(object):
         if not self.is_rehostable:
             return False
 
-        im = pyimgur.Imgur(self.config['imgur_api']['client_id'])
+        im = pyimgur.Imgur(self.config['imgur_api']['client_id'],
+                           self.config['imgur_api']['client_secret'])
         path = 'tmp/' + self.tmp_filename
         try:
             uploaded_image = im.upload_image(path, self.title) 
@@ -92,4 +93,4 @@ class DropBox(object):
             logging.error('Failure! [' + self.thing_id + '] Bad Imgur Request')
             return False
 
-        return uploaded_image.link
+        return uploaded_image
