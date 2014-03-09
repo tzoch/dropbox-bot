@@ -8,15 +8,14 @@ import time
 import urlparse as up
 
 import praw
+import requests
 
 from database import Database
 from utils import delete_tmp_files
 from dropbox import DropBox
 
 def build_comment(imgur_url):
-    head = '''Hi! I noticed that you posted an image from dropbox.com. I have
-            rehosted your image to imgur because high traffic can break 
-            dropbox.com links.\n\n'''
+    head = '''Hi! I noticed that you posted an image from dropbox.com. I have rehosted your image to imgur because high traffic can break dropbox.com links.\n\n'''
 
     body = '[Here is the rehosted image](' + imgur_url + ')\n\n'
 
@@ -61,9 +60,13 @@ def scrape_domain_submissions(domain, config, r):
             logging.info('Skipped! [' + name + '] has already been processed')
             continue
 
-        # skip deleted comments
+        # skip deleted comments and blaklisted users
         if not submission.author:
             logging.info('Skipped! [' + name + '] Submission has been deleted')
+            db.mark_as_processed(name)
+            continue
+        elif submission.author.name.lower() in config['user_blacklist']:
+            logging.info('Skipped! [' + name + '] is by a blacklisted author')
             db.mark_as_processed(name)
             continue
 
@@ -75,17 +78,22 @@ def scrape_domain_submissions(domain, config, r):
 
         if drop.is_rehostable:
             drop.download_file()
-            imgur_url = drop.rehost_image()
+            img = drop.rehost_image()
 
             # This will return false from the dropbox.py file
             # if there is an HTTP Exception uploading the file
             if imgur_url:
-                comment = build_comment(imgur_url)
+                comment = build_comment(img.link)
                 # These try/excepts are to help get around the
                 # commenting limit reddit has for new accounts
                 try:
                     submission.add_comment(comment)
                     db.mark_as_processed(name)
+                    db.log_image(img.id, img.deletehash)
+                except requests.exceptions.HTTPError:
+                    logging.error('ERROR! [' + name + '] HTTP Error')
+                    logging.info(name + ' in subreddit ' + submission.subreddit.display_name) 
+                    print 'Failed to rehost [' + name + '] due to HTTPError'
                 except praw.errors.RateLimitExceeded:
                     logging.error('ERROR! [' + name + '] RateLimtitExceeded')
                     logging.info('Trying to sleep off the RateLimit')
