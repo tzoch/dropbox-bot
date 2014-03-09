@@ -16,6 +16,11 @@ class Database(object):
                    submission_id VARCHAR(10) UNIQUE)'''
         c.execute(query)
         self.conn.commit()
+        query = '''CREATE TABLE IF NOT EXISTS dropbox_images (
+                   id INTEGER PRIMARY KEY ASC,
+                   imgur_id VARCHAR(10) deletehash VARCHAR(40)''' 
+        c.execute(query)
+        self.conn.commit()
 
     @property
     def conn(self):
@@ -46,4 +51,11 @@ class Database(object):
         query = '''INSERT INTO dropbox_submissions (submission_id) 
                    VALUES (?)'''
         c.execute(query , (submission_id,))
+        self.conn.commit()
+
+    def log_image(self, img_id, img_deletehash):
+        c = self.cursor()
+        query = '''INSERT INTO dropbox_images (imgur_id, deletehash)
+                   VALUES (?, ?)'''
+        c.execute(query, (img_id, img_deletehash))
         self.conn.commit()
