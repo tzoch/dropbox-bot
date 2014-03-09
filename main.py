@@ -82,7 +82,7 @@ def scrape_domain_submissions(domain, config, r):
 
             # This will return false from the dropbox.py file
             # if there is an HTTP Exception uploading the file
-            if imgur_url:
+            if img:
                 comment = build_comment(img.link)
                 # These try/excepts are to help get around the
                 # commenting limit reddit has for new accounts
