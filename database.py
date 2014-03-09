@@ -18,7 +18,8 @@ class Database(object):
         self.conn.commit()
         query = '''CREATE TABLE IF NOT EXISTS dropbox_images (
                    id INTEGER PRIMARY KEY ASC,
-                   imgur_id VARCHAR(10) deletehash VARCHAR(40)''' 
+                   imgur_id VARCHAR(10),
+                   deletehash VARCHAR(40))''' 
         c.execute(query)
         self.conn.commit()
 
